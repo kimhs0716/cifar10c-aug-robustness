@@ -5,3 +5,25 @@
 .vscode/
 .idea/
 
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Data (용량이 크므로 제외)
+data/
+
+# 학습된 모델 체크포인트
+checkpoints/
+*.pth
+*.pt
+
+# 실험 결과 (gitkeep 제외)
+results/*
+!results/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
