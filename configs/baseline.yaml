@@ -1,0 +1,115 @@
+experiment:
+  name: baseline_no_aug
+  description: cifar10 clean and cifar10c robustness baseline
+  tags: [baseline, cifar10, cifar10c]
+  seed: 42
+  num_seeds: 3
+
+comparison:
+  fixed:
+    model: resnet18
+    optimizer: sgd
+    scheduler: cosine
+    epochs: 200
+    train_batch_size: 128
+    test_batch_size: 256
+  variable:
+    - augmentation.train.policy
+
+data:
+  dataset: cifar10
+  data_root: ./data
+  num_classes: 10
+  image_size: 32
+  num_workers: 4
+  pin_memory: true
+  train:
+    batch_size: 128
+    shuffle: true
+    drop_last: true
+  test:
+    batch_size: 256
+    shuffle: false
+    drop_last: false
+  normalization:
+    mean: [0.4914, 0.4822, 0.4465]
+    std: [0.2470, 0.2435, 0.2616]
+
+augmentation:
+  train:
+    enabled: true
+    policy: baseline
+    random_crop:
+      enabled: true
+      size: 32
+      padding: 4
+    horizontal_flip:
+      enabled: true
+      p: 0.5
+    color_jitter:
+      enabled: false
+      brightness: 0.0
+      contrast: 0.0
+      saturation: 0.0
+      hue: 0.0
+    random_erasing:
+      enabled: false
+      p: 0.0
+      scale: [0.02, 0.33]
+      ratio: [0.3, 3.3]
+  test:
+    enabled: false
+  sweep:
+    variable_key: augmentation.train.policy
+    candidates: [baseline, randaugment, mixup, cutmix]
+
+model:
+  name: resnet18
+  pretrained: false
+
+train:
+  device: cuda
+  epochs: 200
+  amp: true
+  compile: false
+  gradient_clip_norm: null
+  optimizer:
+    name: sgd
+    lr: 0.1
+    momentum: 0.9
+    weight_decay: 0.0005
+    nesterov: true
+  scheduler:
+    name: cosine
+    warmup_epochs: 5
+    min_lr: 0.00001
+  criterion:
+    name: cross_entropy
+    label_smoothing: 0.0
+
+eval:
+  clean:
+    enabled: true
+  robustness:
+    enabled: true
+    dataset: cifar10c
+    root: ./data/CIFAR-10-C
+    corruptions: all
+    severity: [1, 2, 3, 4, 5]
+    metrics: [clean_acc, corruption_mean_acc, severity_acc]
+
+logging:
+  log_interval: 100
+  save_interval_epochs: 10
+  save_best_by: clean_acc
+  print_config: true
+
+output:
+  dir: ./results
+  run_name: baseline_no_aug_seed${seed}
+  save_config_snapshot: true
+  save_csv: true
+  save_json: true
+  checkpoint:
+    save_last: true
+    save_best: true
