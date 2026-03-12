@@ -64,7 +64,7 @@ def evaluate_corruption(model, data_dir, mean, std, batch_size, device):
         for severity in range(1, 6):
             loader = get_cifar10c_loader(
                 data_dir, corruption, severity,
-                mean, std, batch_size
+                mean, std, batch_size, device
             )
             acc = evaluate(model, loader, device)
             results[corruption][severity] = acc
@@ -88,7 +88,7 @@ def main(config_path):
     set_seed(SEED)
 
     train_loader, test_loader = get_cifar10_loaders(
-        data_dir, mean, std, batch_size
+        data_dir, mean, std, batch_size, device
     )
     model = get_model(cfg["model"]["name"]).to(device)
     criterion = nn.CrossEntropyLoss()
