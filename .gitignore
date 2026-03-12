@@ -27,3 +27,6 @@ results/*
 
 # OS
 .DS_Store
+
+# Test File
+test.ipynb
