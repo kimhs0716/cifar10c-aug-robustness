@@ -6,17 +6,19 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets, transforms
 
 
-def get_cifar10_loaders(data_dir, mean, std, batch_size):
+def get_cifar10_loaders(data_dir, mean, std, batch_size, device="cpu"):
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
     ])
 
+    pin_memory = device != "cpu"
+
     train_dataset = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=transform)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=pin_memory, persistent_workers=True)
 
     test_dataset = datasets.CIFAR10(root=data_dir, train=False, download=True, transform=transform)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=pin_memory, persistent_workers=True)
 
     return train_loader, test_loader
 
@@ -47,13 +49,15 @@ class CIFAR10C(Dataset):
         return img, label
 
 
-def get_cifar10c_loader(data_dir, corruption, severity, mean, std, batch_size):
+def get_cifar10c_loader(data_dir, corruption, severity, mean, std, batch_size, device="cpu"):
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
     ])
 
+    pin_memory = device != "cpu"
+
     dataset = CIFAR10C(data_dir, corruption, severity, transform)
-    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=pin_memory)
 
     return loader
