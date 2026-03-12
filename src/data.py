@@ -6,10 +6,7 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets, transforms
 
 
-def get_cifar10_loaders(data_dir, batch_size):
-    mean = (0.4914, 0.4822, 0.4465)
-    std = (0.2470, 0.2435, 0.2616)
-
+def get_cifar10_loaders(data_dir, mean, std, batch_size):
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
@@ -50,10 +47,7 @@ class CIFAR10C(Dataset):
         return img, label
 
 
-def get_cifar10c_loader(data_dir, corruption, severity, batch_size):
-    mean = (0.4914, 0.4822, 0.4465)
-    std = (0.2470, 0.2435, 0.2616)
-
+def get_cifar10c_loader(data_dir, corruption, severity, mean, std, batch_size):
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, std)

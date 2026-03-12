@@ -14,10 +14,11 @@ def set_seed(seed):
     torch.backends.cudnn.benchmark = False
 
 
-def log_epoch(epoch, total_epochs, loss, acc, lr, elapsed):
+def log_epoch(epoch, total_epochs, train_loss, train_acc, test_acc, lr, elapsed):
     l = len(str(total_epochs))
     print(
-        f"Epoch [{epoch+1:0{l}d}/{total_epochs}] - Loss: {loss:.4f}, Acc: {acc:.4f}, "
+        f"Epoch [{epoch+1:0{l}d}/{total_epochs}] - Loss: {train_loss:.4f}, "
+        f"Acc: {train_acc:.4f}, Test Acc: {test_acc:.4f}, "
         f"LR: {lr:.6f}, Time: {elapsed:.2f}s"
     )
 
