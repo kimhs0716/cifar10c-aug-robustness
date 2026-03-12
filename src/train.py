@@ -1,4 +1,6 @@
+import os
 import time
+
 import yaml
 import torch
 import torch.nn as nn
@@ -84,22 +86,35 @@ def main(config_path):
     epochs = cfg["train"]["epochs"]
     batch_size = cfg["data"]["batch_size"]
     c10c_dir = cfg["eval"]["robustness"]["root"]
+    output_dir = cfg["output"]["dir"]
+    run_name = cfg["output"]["run_name"]
 
     set_seed(SEED)
 
     train_loader, test_loader = get_cifar10_loaders(
-        data_dir, mean, std, batch_size, device
+        data_dir, mean, std, batch_size,
+        aug_type=cfg["data"]["aug_type"], device=device
     )
+
     model = get_model(cfg["model"]["name"]).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(
         model.parameters(), **cfg["train"]["optimizer"]
     )
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-        optimizer,
-        T_max=epochs,
+    warmup = torch.optim.lr_scheduler.LinearLR(
+        optimizer, start_factor=0.1, 
+        end_factor=1.0, total_iters=5
+    )
+    cosine = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=epochs-5,
         eta_min=cfg["train"]["scheduler"]["min_lr"]
     )
+    scheduler = torch.optim.lr_scheduler.SequentialLR(
+        optimizer, schedulers=[warmup, cosine],
+        milestones=[5]
+    )
+
+    best_acc = 0.0
 
     for epoch in range(epochs):
         start = time.time()
@@ -117,6 +132,16 @@ def main(config_path):
         )
 
         scheduler.step()
+
+        if test_acc > best_acc:
+            best_acc = test_acc
+            ckpt_dir = os.path.join(output_dir, run_name)
+            os.makedirs(ckpt_dir, exist_ok=True)
+            torch.save({
+                'epoch': epoch,
+                'model': model.state_dict(),
+                'acc': best_acc
+            }, f"{ckpt_dir}/best.pt")
     
     clean_acc = evaluate(model, test_loader, device)
     corruption_result = evaluate_corruption(
