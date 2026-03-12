@@ -5,6 +5,7 @@ experiment:
 data:
   data_root: ./data
   batch_size: 128
+  aug_type: "none"
   normalization:
     mean: [0.4914, 0.4822, 0.4465]
     std: [0.2470, 0.2435, 0.2616]

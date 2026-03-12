@@ -6,18 +6,33 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets, transforms
 
 
-def get_cifar10_loaders(data_dir, mean, std, batch_size, device="cpu"):
-    transform = transforms.Compose([
+def get_cifar10_loaders(data_dir, mean, std, batch_size, aug_type="none", device="cpu"):
+    if aug_type == "none":
+        train_transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std)
+        ])
+    elif aug_type == "basic":
+        train_transform = transforms.Compose([
+            transforms.RandomCrop(32, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std)
+        ])
+    else:
+        raise ValueError(f"Unknown aug_type: {aug_type}")
+
+    test_transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
     ])
 
     pin_memory = device != "cpu"
 
-    train_dataset = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=transform)
+    train_dataset = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=train_transform)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=pin_memory, persistent_workers=True)
 
-    test_dataset = datasets.CIFAR10(root=data_dir, train=False, download=True, transform=transform)
+    test_dataset = datasets.CIFAR10(root=data_dir, train=False, download=True, transform=test_transform)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=pin_memory, persistent_workers=True)
 
     return train_loader, test_loader
