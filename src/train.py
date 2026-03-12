@@ -80,6 +80,8 @@ def main(config_path):
     
     SEED = cfg["experiment"]["seed"]
     device = cfg["experiment"]["device"]
+    if device == "cuda" and not torch.cuda.is_available():
+        device = "cpu"
     mean = cfg["data"]["normalization"]["mean"]
     std = cfg["data"]["normalization"]["std"]
     data_dir = cfg["data"]["data_root"]

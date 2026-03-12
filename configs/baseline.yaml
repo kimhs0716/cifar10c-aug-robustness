@@ -1,6 +1,6 @@
 experiment:
   seed: 42
-  device: cpu
+  device: cuda
 
 data:
   data_root: ./data
