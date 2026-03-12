@@ -30,10 +30,10 @@ def get_cifar10_loaders(data_dir, mean, std, batch_size, aug_type="none", device
     pin_memory = device != "cpu"
 
     train_dataset = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=train_transform)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=pin_memory, persistent_workers=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=pin_memory, persistent_workers=True)
 
     test_dataset = datasets.CIFAR10(root=data_dir, train=False, download=True, transform=test_transform)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=pin_memory, persistent_workers=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=pin_memory, persistent_workers=True)
 
     return train_loader, test_loader
 
