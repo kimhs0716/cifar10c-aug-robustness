@@ -145,6 +145,8 @@ def main(config_path):
                 'acc': best_acc
             }, f"{ckpt_dir}/best.pt")
     
+    ckpt = torch.load(f"{ckpt_dir}/best.pt")
+    model.load_state_dict(ckpt['model'])
     clean_acc = evaluate(model, test_loader, device)
     corruption_result = evaluate_corruption(
         model, c10c_dir, mean, std,

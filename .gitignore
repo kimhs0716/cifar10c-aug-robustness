@@ -24,9 +24,8 @@ results/*
 
 # Jupyter
 .ipynb_checkpoints/
+colab.ipynb
+test.ipynb
 
 # OS
 .DS_Store
-
-# Test File
-test.ipynb
