@@ -73,6 +73,6 @@ def get_cifar10c_loader(data_dir, corruption, severity, mean, std, batch_size, d
     pin_memory = device != "cpu"
 
     dataset = CIFAR10C(data_dir, corruption, severity, transform)
-    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=pin_memory)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=pin_memory)
 
     return loader

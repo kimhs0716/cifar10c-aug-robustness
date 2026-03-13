@@ -15,8 +15,8 @@
 - 모델: ResNet-18
 - Optimizer: SGD(momentum 0.9, weight decay 5e-4)
 - Scheduler: Cosine + warmup 5 epochs
-- Epoch: 200
-- Batch size: train 128 / test 256
+- Epoch: 100
+- Batch size: 128
 - Seed 운용: 기본 seed 42, 통계용 3 seeds
 - 평가셋: CIFAR-10(clean) + CIFAR-10-C(robust)
 - 평가지표: clean_acc, corruption_mean_acc, severity_acc
@@ -39,12 +39,12 @@
 - `src/utils.py`: 로깅/시드/유틸리티
 - `configs/baseline.yaml`: 기본 실험 설정
 
-- 구현 상태: 위 파일 초기화만 완료(내용 비어 있음)
-- 구현 기준: 아래 실험 프로토콜
+- 구현 상태: 스캐폴딩 구현 완료
 
 ## Project Structure
 
 - `configs/`: 실험 설정 파일(yaml)
+- `scripts/`: 데이터 다운로드 등 유틸리티 스크립트
 - `src/`: 학습 코드
 - `results/`: 실험 결과(로그, 메트릭, 체크포인트)
 
@@ -57,10 +57,21 @@
 pip install -r requirements.txt
 ```
 
+3. 데이터 다운로드
+
+CIFAR-10은 학습 시 자동으로 다운로드됩니다.
+CIFAR-10-C는 아래 스크립트로 받습니다 (약 2.7GB):
+
+```bash
+bash scripts/download_data.sh        # ./data/ 에 저장 (기본값)
+bash scripts/download_data.sh ./data # 저장 경로 직접 지정
+```
+
 의존성:
 
 - torch==2.10.0
 - torchvision==0.25.0
+- numpy<2.4
 - tqdm==4.67.3
 - pyyaml==6.0.3
 
@@ -69,7 +80,7 @@ pip install -r requirements.txt
 ### 1) 공통 평가셋
 
 - Clean: CIFAR-10 test
-- Robust: CIFAR-10-C (15 corruption x severity 1~5)
+- Robust: CIFAR-10-C (19 corruption x severity 1~5)
 
 ### 2) 핵심 지표
 
