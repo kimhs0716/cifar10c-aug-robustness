@@ -14,7 +14,7 @@ model:
   name: resnet18
 
 train:
-  epochs: 200
+  epochs: 100
   optimizer:
     lr: 0.1
     momentum: 0.9
