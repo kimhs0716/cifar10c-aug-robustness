@@ -40,17 +40,24 @@ def log_epoch(epoch, total_epochs, train_loss, train_acc, test_acc, lr, elapsed)
     )
 
 
-def save_results(clean_acc, corruption_mean_acc, severity_acc, save_path):
-    # clean_acc: float
-    # corruption_mean_acc: float
-    # severity_acc: dict {1: float, 2: float, ..., 5: float}
-    # save_path: str, JSON 파일 경로
-    res = {
-        "clean_acc": clean_acc,
-        "corruption_mean_acc": corruption_mean_acc,
-        "severity_acc": severity_acc
+def save_results(clean_acc, corruption_res, save_dir):
+    res = dict()
+    res["clean_acc"] = clean_acc
+    severity_acc = 0
+    for per_sev in corruption_res.values():
+        severity_acc += sum(per_sev.values()) / len(per_sev)
+    res["corruption_mean_acc"] = severity_acc / len(corruption_res)
+    res["severity_acc"] = {
+        s: sum(corruption_res[c][s] for c in corruption_res) / len(corruption_res)
+        for s in range(1, 6)
     }
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    with open(save_path, "w") as f:
+    os.makedirs(save_dir, exist_ok=True)
+    with open(os.path.join(save_dir, "metrics.json"), "w") as f:
         json.dump(res, f, indent=4)
+    with  open(os.path.join(save_dir, "corruption_metrics.csv"), "w") as f:
+        f.write("corruption,severity,acc\n")
+        for c in corruption_res:
+            for s in corruption_res[c]:
+                f.write(f"{c},{s},{corruption_res[c][s]:.4f}\n")
     return res
+    

@@ -88,6 +88,8 @@ def main(config_path):
     c10c_dir = cfg["eval"]["robustness"]["root"]
     output_dir = cfg["output"]["dir"]
     run_name = cfg["output"]["run_name"]
+    save_dir = os.path.join(output_dir, run_name)
+    os.makedirs(save_dir, exist_ok=True)
 
     set_seed(SEED)
 
@@ -135,15 +137,13 @@ def main(config_path):
 
         if test_acc > best_acc:
             best_acc = test_acc
-            ckpt_dir = os.path.join(output_dir, run_name)
-            os.makedirs(ckpt_dir, exist_ok=True)
             torch.save({
                 'epoch': epoch,
                 'model': model.state_dict(),
                 'acc': best_acc
-            }, f"{ckpt_dir}/best.pt")
+            }, f"{save_dir}/best.pt")
     
-    ckpt = torch.load(f"{ckpt_dir}/best.pt")
+    ckpt = torch.load(f"{save_dir}/best.pt")
     model.load_state_dict(ckpt['model'])
     clean_acc = evaluate(model, test_loader, device)
     corruption_result = evaluate_corruption(
@@ -151,16 +151,7 @@ def main(config_path):
         batch_size, device
     )
 
-    all_accs = [acc for per_sev in corruption_result.values() for acc in per_sev.values()]
-    corruption_mean_acc = sum(all_accs) / len(all_accs)
-
-    severity_acc = {
-        s: sum(corruption_result[c][s] for c in corruption_result) / len(corruption_result)
-        for s in range(1, 6)
-    }
-
-    save_path = f"{cfg['output']['dir']}/{cfg['output']['run_name']}/metrics.json"
-    save_results(clean_acc, corruption_mean_acc, severity_acc, save_path)
+    save_results(clean_acc, corruption_result, save_dir)
 
 
 if __name__ == "__main__":
