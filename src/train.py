@@ -1,5 +1,6 @@
 import os
 import time
+import shutil
 
 import yaml
 import torch
@@ -102,6 +103,8 @@ def main(config_path):
     save_interval = cfg["output"]["save_interval"]
     save_dir = os.path.join(output_dir, run_name)
     os.makedirs(save_dir, exist_ok=True)
+
+    shutil.copy(config_path, os.path.join(save_dir, "config.yaml"))
 
     set_seed(SEED)
 
