@@ -27,7 +27,7 @@ def get_cifar10_loaders(data_dir, mean, std, batch_size, aug_type="none", device
         transforms.Normalize(mean, std)
     ])
 
-    pin_memory = device != "cpu"
+    pin_memory = device == "cuda"
 
     train_dataset = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=train_transform)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=pin_memory, persistent_workers=True)
@@ -70,7 +70,7 @@ def get_cifar10c_loader(data_dir, corruption, severity, mean, std, batch_size, d
         transforms.Normalize(mean, std)
     ])
 
-    pin_memory = device != "cpu"
+    pin_memory = device == "cuda"
 
     dataset = CIFAR10C(data_dir, corruption, severity, transform)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=pin_memory)
