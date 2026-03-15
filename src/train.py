@@ -99,6 +99,7 @@ def main(config_path):
     c10c_dir = cfg["eval"]["robustness"]["root"]
     output_dir = cfg["output"]["dir"]
     run_name = cfg["output"]["run_name"]
+    save_interval = cfg["output"]["save_interval"]
     save_dir = os.path.join(output_dir, run_name)
     os.makedirs(save_dir, exist_ok=True)
 
@@ -153,6 +154,14 @@ def main(config_path):
                 'model': model.state_dict(),
                 'acc': best_acc
             }, f"{save_dir}/best.pt")
+        
+        if (epoch + 1) % save_interval == 0:
+            torch.save({
+                'epoch': epoch,
+                'model': model.state_dict(),
+                'optimizer': optimizer.state_dict(),
+                'acc': test_acc
+            }, f"{save_dir}/last.pt")
     
     ckpt = torch.load(f"{save_dir}/best.pt")
     model.load_state_dict(ckpt['model'])
