@@ -7,7 +7,7 @@ import torch.nn as nn
 
 from data import get_cifar10_loaders, get_cifar10c_loader
 from model import get_model
-from utils import set_seed, log_epoch, save_results
+from utils import resolve_device, set_seed, log_epoch, save_results
 
 
 CORRUPTIONS = [
@@ -79,9 +79,7 @@ def main(config_path):
         cfg = yaml.safe_load(f)
     
     SEED = cfg["experiment"]["seed"]
-    device = cfg["experiment"]["device"]
-    if device == "cuda" and not torch.cuda.is_available():
-        device = "cpu"
+    device = resolve_device(cfg["experiment"]["device"])
     mean = cfg["data"]["normalization"]["mean"]
     std = cfg["data"]["normalization"]["std"]
     data_dir = cfg["data"]["data_root"]

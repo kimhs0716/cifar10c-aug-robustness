@@ -5,6 +5,23 @@ import numpy as np
 import torch
 
 
+def resolve_device(device_str):
+    if device_str == "cuda":
+        if torch.cuda.is_available():
+            return "cuda"
+        if torch.xpu.is_available():
+            print("WARNING: CUDA not available, falling back to XPU")
+            return "xpu"
+        print("WARNING: CUDA not available, falling back to cpu")
+        return "cpu"
+    if device_str == "xpu":
+        if torch.xpu.is_available():
+            return "xpu"
+        print("WARNING: XPU not available, falling back to cpu")
+        return "cpu"
+    return "cpu"
+
+
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
