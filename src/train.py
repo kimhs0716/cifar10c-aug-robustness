@@ -71,7 +71,10 @@ def evaluate_corruption(model, data_dir, mean, std, batch_size, device, num_work
     results = dict()
 
     labels = np.load(os.path.join(data_dir, "labels.npy"))
-    for corruption in CORRUPTIONS:
+    total = len(CORRUPTIONS)
+    for i, corruption in enumerate(CORRUPTIONS, 1):
+        print(f"[{i}/{total}] {corruption} ...", end=" ", flush=True)
+        t0 = time.time()
         all_data = np.load(os.path.join(data_dir, f"{corruption}.npy"))
         results[corruption] = dict()
         for severity in range(1, 6):
@@ -81,6 +84,7 @@ def evaluate_corruption(model, data_dir, mean, std, batch_size, device, num_work
             loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
             acc = evaluate(model, loader, device)
             results[corruption][severity] = acc
+        print(f"done ({time.time() - t0:.1f}s)")
 
     return results
 
