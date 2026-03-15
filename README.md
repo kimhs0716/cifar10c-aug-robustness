@@ -51,8 +51,14 @@
 1. Python 가상환경 생성 및 활성화
 2. 패키지 설치
 
+**CPU / CUDA**
 ```bash
 pip install -r requirements.txt
+```
+
+**Intel Arc GPU - XPU (Windows 네이티브)**
+```bash
+pip install -r requirements-xpu.txt
 ```
 
 3. 데이터 다운로드
