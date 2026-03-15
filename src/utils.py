@@ -51,6 +51,8 @@ def save_results(clean_acc, corruption_res, save_dir):
         s: sum(corruption_res[c][s] for c in corruption_res) / len(corruption_res)
         for s in range(1, 6)
     }
+    mce = sum(1 - acc for per_sev in corruption_res.values() for acc in per_sev.values()) / (len(corruption_res) * 5)
+    res["mce"] = round(mce, 4)
     os.makedirs(save_dir, exist_ok=True)
     with open(os.path.join(save_dir, "metrics.json"), "w") as f:
         json.dump(res, f, indent=4)
