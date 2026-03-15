@@ -54,10 +54,13 @@ def save_results(clean_acc, corruption_res, save_dir):
     os.makedirs(save_dir, exist_ok=True)
     with open(os.path.join(save_dir, "metrics.json"), "w") as f:
         json.dump(res, f, indent=4)
-    with  open(os.path.join(save_dir, "corruption_metrics.csv"), "w") as f:
+    with open(os.path.join(save_dir, "corruption_metrics.csv"), "w") as f:
         f.write("corruption,severity,acc\n")
         for c in corruption_res:
             for s in corruption_res[c]:
                 f.write(f"{c},{s},{corruption_res[c][s]:.4f}\n")
+
+    print(f"Results saved to \"{save_dir}\" successfully.")
+
     return res
     
