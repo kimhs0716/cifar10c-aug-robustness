@@ -31,15 +31,13 @@
 
 ## Current Status
 
-- 상태: 실험용 스캐폴딩
+- 상태: 기본 파이프라인 구현 완료, 증강 실험 준비 중
 
-- `src/data.py`: 데이터셋/증강 파이프라인
-- `src/model.py`: 모델 정의
-- `src/train.py`: 학습/평가 루프
-- `src/utils.py`: 로깅/시드/유틸리티
-- `configs/baseline.yaml`: 기본 실험 설정
-
-- 구현 상태: 스캐폴딩 구현 완료
+- `src/data.py`: 데이터셋/증강 파이프라인 구현 완료
+- `src/model.py`: ResNet-18 구현 완료
+- `src/train.py`: 학습 + clean/robust 평가 루프 구현 완료
+- `src/utils.py`: 디바이스 설정, 로깅, 시드, 유틸리티 구현 완료
+- `configs/baseline.yaml`: 기본 실험 설정 완료
 
 ## Project Structure
 
@@ -72,7 +70,7 @@ bash scripts/download_data.sh ./data # 저장 경로 직접 지정
 - torch==2.10.0
 - torchvision==0.25.0
 - numpy<2.4
-- tqdm==4.67.3
+- tqdm>=4.64.1
 - pyyaml==6.0.3
 
 ## Recommended Experiment Protocol
@@ -110,13 +108,6 @@ bash scripts/download_data.sh ./data # 저장 경로 직접 지정
 - clean/robust 요약 메트릭 (`metrics.json`)
 - corruption별 상세 결과 (`corruption_metrics.csv`)
 - 체크포인트 (`best.pt`, `last.pt`)
-
-## Suggested Next Steps
-
-1. `src/data.py`에 CIFAR-10 및 CIFAR-10-C 로더 구현
-2. `src/model.py`에 baseline 모델 구현
-3. `src/train.py`에 학습 + clean/robust 평가 루프 구현
-4. `results/` 집계 스크립트 추가
 
 ## Notes
 
