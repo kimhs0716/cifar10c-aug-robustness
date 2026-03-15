@@ -64,6 +64,25 @@ class CIFAR10C(Dataset):
         return img, label
 
 
+class CIFAR10CSlice(Dataset):
+    def __init__(self, data, labels, transform=None):
+        self.data = data
+        self.labels = labels
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.labels[idx]
+
+        if self.transform:
+            img = self.transform(img)
+
+        return img, label
+
+
 def get_cifar10c_loader(data_dir, corruption, severity, mean, std, batch_size, device="cpu"):
     transform = transforms.Compose([
         transforms.ToTensor(),

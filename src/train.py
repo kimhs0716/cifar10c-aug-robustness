@@ -5,7 +5,10 @@ import yaml
 import torch
 import torch.nn as nn
 
-from data import get_cifar10_loaders, get_cifar10c_loader
+import numpy as np
+from torch.utils.data import DataLoader
+from torchvision import transforms
+from data import get_cifar10_loaders, CIFAR10CSlice
 from model import get_model
 from utils import resolve_device, set_seed, log_epoch, save_results
 
@@ -59,18 +62,25 @@ def evaluate(model, loader, device):
 
 
 def evaluate_corruption(model, data_dir, mean, std, batch_size, device):
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean, std)
+    ])
+    pin_memory = device == "cuda"
     results = dict()
 
+    labels = np.load(os.path.join(data_dir, "labels.npy"))
     for corruption in CORRUPTIONS:
+        all_data = np.load(os.path.join(data_dir, f"{corruption}.npy"))
         results[corruption] = dict()
         for severity in range(1, 6):
-            loader = get_cifar10c_loader(
-                data_dir, corruption, severity,
-                mean, std, batch_size, device
-            )
+            start = (severity - 1) * 10000
+            end = severity * 10000
+            dataset = CIFAR10CSlice(all_data[start:end], labels[start:end], transform)
+            loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=pin_memory)
             acc = evaluate(model, loader, device)
             results[corruption][severity] = acc
-    
+
     return results
 
 
