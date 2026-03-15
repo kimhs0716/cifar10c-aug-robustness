@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets, transforms
 
 
-def get_cifar10_loaders(data_dir, mean, std, batch_size, aug_type="none", device="cpu"):
+def get_cifar10_loaders(data_dir, mean, std, batch_size, aug_type="none", device="cpu", num_workers=2):
     if aug_type == "none":
         train_transform = transforms.Compose([
             transforms.ToTensor(),
@@ -28,12 +28,13 @@ def get_cifar10_loaders(data_dir, mean, std, batch_size, aug_type="none", device
     ])
 
     pin_memory = device == "cuda"
+    persistent = num_workers > 0
 
     train_dataset = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=train_transform)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=pin_memory, persistent_workers=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=persistent)
 
     test_dataset = datasets.CIFAR10(root=data_dir, train=False, download=True, transform=test_transform)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=pin_memory, persistent_workers=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory, persistent_workers=persistent)
 
     return train_loader, test_loader
 
@@ -83,7 +84,7 @@ class CIFAR10CSlice(Dataset):
         return img, label
 
 
-def get_cifar10c_loader(data_dir, corruption, severity, mean, std, batch_size, device="cpu"):
+def get_cifar10c_loader(data_dir, corruption, severity, mean, std, batch_size, device="cpu", num_workers=2):
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
@@ -92,6 +93,6 @@ def get_cifar10c_loader(data_dir, corruption, severity, mean, std, batch_size, d
     pin_memory = device == "cuda"
 
     dataset = CIFAR10C(data_dir, corruption, severity, transform)
-    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=pin_memory)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
 
     return loader

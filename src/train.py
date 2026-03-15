@@ -61,7 +61,7 @@ def evaluate(model, loader, device):
     return correct / total
 
 
-def evaluate_corruption(model, data_dir, mean, std, batch_size, device):
+def evaluate_corruption(model, data_dir, mean, std, batch_size, device, num_workers=2):
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
@@ -77,7 +77,7 @@ def evaluate_corruption(model, data_dir, mean, std, batch_size, device):
             start = (severity - 1) * 10000
             end = severity * 10000
             dataset = CIFAR10CSlice(all_data[start:end], labels[start:end], transform)
-            loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=pin_memory)
+            loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
             acc = evaluate(model, loader, device)
             results[corruption][severity] = acc
 
@@ -95,6 +95,7 @@ def main(config_path):
     data_dir = cfg["data"]["data_root"]
     epochs = cfg["train"]["epochs"]
     batch_size = cfg["data"]["batch_size"]
+    num_workers = cfg["data"]["num_workers"]
     c10c_dir = cfg["eval"]["robustness"]["root"]
     output_dir = cfg["output"]["dir"]
     run_name = cfg["output"]["run_name"]
@@ -105,7 +106,7 @@ def main(config_path):
 
     train_loader, test_loader = get_cifar10_loaders(
         data_dir, mean, std, batch_size,
-        aug_type=cfg["data"]["aug_type"], device=device
+        aug_type=cfg["data"]["aug_type"], device=device, num_workers=num_workers
     )
 
     model = get_model(cfg["model"]["name"]).to(device)
@@ -158,7 +159,7 @@ def main(config_path):
     clean_acc = evaluate(model, test_loader, device)
     corruption_result = evaluate_corruption(
         model, c10c_dir, mean, std,
-        batch_size, device
+        batch_size, device, num_workers
     )
 
     save_results(clean_acc, corruption_result, save_dir)
