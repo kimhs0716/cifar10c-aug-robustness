@@ -19,6 +19,24 @@ def get_cifar10_loaders(data_dir, mean, std, batch_size, aug_type="none", device
             transforms.ToTensor(),
             transforms.Normalize(mean, std)
         ])
+    elif aug_type == "autoaugment":
+        train_transform = transforms.Compose([
+            transforms.AutoAugment(transforms.AutoAugmentPolicy.CIFAR10),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std)
+        ])
+    elif aug_type == "randaugment":
+        train_transform = transforms.Compose([
+            transforms.RandAugment(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std)
+        ])
+    elif aug_type == "augmix":
+        train_transform = transforms.Compose([
+            transforms.AugMix(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std)
+        ])
     else:
         raise ValueError(f"Unknown aug_type: {aug_type}")
 
