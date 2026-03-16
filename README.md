@@ -15,11 +15,11 @@
 - 모델: ResNet-18
 - Optimizer: SGD(momentum 0.9, weight decay 5e-4)
 - Scheduler: Cosine + warmup 5 epochs
-- Epoch: 100
+- Epoch: 30
 - Batch size: 128
-- Seed 운용: 기본 seed 42, 통계용 3 seeds
+- Seed 운용: 3 seeds (0, 1, 42)
 - 평가셋: CIFAR-10(clean) + CIFAR-10-C(robust)
-- 평가지표: clean_acc, corruption_mean_acc, severity_acc
+- 평가지표: clean_acc, corruption_mean_acc, severity_acc, mCE
 
 - 가변 항목:
 - augmentation policy
@@ -31,19 +31,35 @@
 
 ## Current Status
 
-- 상태: 기본 파이프라인 구현 완료, 증강 실험 준비 중
+- 상태: 5가지 aug_type × 3 seeds 실험 완료
 
 - `src/data.py`: 데이터셋/증강 파이프라인 구현 완료
 - `src/model.py`: ResNet-18 구현 완료
-- `src/train.py`: 학습 + clean/robust 평가 루프 구현 완료
+- `scripts/train.py`: 학습 + clean/robust 평가 루프 구현 완료
 - `src/utils.py`: 디바이스 설정, 로깅, 시드, 유틸리티 구현 완료
 - `configs/baseline.yaml`: 기본 실험 설정 완료
+- `scripts/compare.py`: 실험 결과 비교 스크립트 완료
+- `scripts/plot.py`: mCE bar, severity line, corruption heatmap 시각화 완료
+
+## Results (seed 0, 1, 42 평균)
+
+| aug_type | clean_acc | corruption_mean_acc | mCE |
+|---|---|---|---|
+| none | 0.781 | 0.696 | 0.304 |
+| basic | 0.849 | 0.734 | 0.266 |
+| augmix | 0.794 | 0.736 | 0.264 |
+| autoaugment | 0.816 | 0.747 | 0.253 |
+| **randaugment** | **0.841** | **0.757** | **0.243** |
+
+- clean accuracy 1위: basic (0.849)
+- robustness 1위: randaugment (mCE 0.243)
+- clean-robust trade-off: basic은 clean은 높지만 robustness는 augmix와 유사
 
 ## Project Structure
 
 - `configs/`: 실험 설정 파일(yaml)
-- `scripts/`: 데이터 다운로드 등 유틸리티 스크립트
-- `src/`: 학습 코드
+- `scripts/`: 학습, 비교, 시각화, 데이터 다운로드 스크립트
+- `src/`: 모델, 데이터, 유틸리티 코드
 - `results/`: 실험 결과(로그, 메트릭, 체크포인트)
 
 ## Environment Setup
@@ -66,18 +82,51 @@ pip install -r requirements-xpu.txt
 CIFAR-10은 학습 시 자동으로 다운로드됩니다.
 CIFAR-10-C는 아래 스크립트로 받습니다 (약 2.7GB):
 
+**Linux / WSL2**
 ```bash
 bash scripts/download_data.sh        # ./data/ 에 저장 (기본값)
 bash scripts/download_data.sh ./data # 저장 경로 직접 지정
 ```
 
-의존성:
+**Windows**
+```bat
+scripts\download_data.bat
+scripts\download_data.bat .\data
+```
+
+의존성 (CPU/CUDA):
 
 - torch==2.10.0
 - torchvision==0.25.0
 - numpy<2.4
 - tqdm>=4.64.1
 - pyyaml==6.0.3
+
+## Usage
+
+**단일 실험**
+```bash
+python scripts/train.py --config configs/baseline.yaml --aug_type basic --seed 42 --epochs 30
+```
+
+**전체 실험 (5 aug × 3 seeds)**
+```bash
+# Linux / WSL2
+bash scripts/run_all.sh
+
+# Windows
+scripts\run_all.bat
+```
+
+**결과 비교**
+```bash
+python scripts/compare.py
+```
+
+**시각화**
+```bash
+python scripts/plot.py
+```
 
 ## Recommended Experiment Protocol
 
@@ -91,7 +140,7 @@ bash scripts/download_data.sh ./data # 저장 경로 직접 지정
 - Clean Accuracy
 - Corruption 평균 Accuracy
 - Severity별 Accuracy
-- (선택) mCE
+- mCE
 
 ### 3) 비교군 구성
 
@@ -117,5 +166,4 @@ bash scripts/download_data.sh ./data # 저장 경로 직접 지정
 
 ## Notes
 
-- 초기 단계: augmentation 후보 소수 유지, 엄격 비교
 - 결론 기준: 단일 실행 배제, multi-seed 평균/분산 우선
