@@ -126,7 +126,7 @@ def main():
     save_dir = os.path.join(output_dir, run_name)
     os.makedirs(save_dir, exist_ok=True)
 
-    shutil.copy(config_path, os.path.join(save_dir, "config.yaml"))
+    shutil.copy(args.config, os.path.join(save_dir, "config.yaml"))
 
     set_seed(SEED)
 
