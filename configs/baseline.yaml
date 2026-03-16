@@ -30,5 +30,4 @@ eval:
 
 output:
   dir: ./results
-  run_name: baseline_no_aug
   save_interval: 10

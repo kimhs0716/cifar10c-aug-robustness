@@ -103,7 +103,7 @@ def main(config_path):
     num_workers = cfg["data"]["num_workers"]
     c10c_dir = cfg["eval"]["robustness"]["root"]
     output_dir = cfg["output"]["dir"]
-    run_name = cfg["output"]["run_name"]
+    run_name = f"{cfg['model']['name']}_{cfg['data']['aug_type']}_seed{SEED}"
     save_interval = cfg["output"]["save_interval"]
     save_dir = os.path.join(output_dir, run_name)
     os.makedirs(save_dir, exist_ok=True)
