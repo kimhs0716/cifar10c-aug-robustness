@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import time
@@ -92,10 +93,24 @@ def evaluate_corruption(model, data_dir, mean, std, batch_size, device, num_work
     return results
 
 
-def main(config_path):
-    with open(config_path) as f:
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default="configs/baseline.yaml")
+    parser.add_argument("--aug_type", default=None)
+    parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--epochs", type=int, default=None)
+    args = parser.parse_args()
+
+    with open(args.config) as f:
         cfg = yaml.safe_load(f)
-    
+
+    if args.aug_type is not None:
+        cfg["data"]["aug_type"] = args.aug_type
+    if args.seed is not None:
+        cfg["experiment"]["seed"] = args.seed
+    if args.epochs is not None:
+        cfg["train"]["epochs"] = args.epochs
+
     SEED = cfg["experiment"]["seed"]
     device = resolve_device(cfg["experiment"]["device"])
     mean = cfg["data"]["normalization"]["mean"]
@@ -185,4 +200,4 @@ def main(config_path):
 
 
 if __name__ == "__main__":
-    main("configs/baseline.yaml")
+    main()
