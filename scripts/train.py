@@ -13,7 +13,7 @@ import torch.nn as nn
 import numpy as np
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from data import get_cifar10_loaders, CIFAR10CSlice
+from data import get_cifar10_loaders, CIFAR10C
 from model import get_model
 from utils import resolve_device, set_seed, log_epoch, save_results
 
@@ -84,7 +84,7 @@ def evaluate_corruption(model, data_dir, mean, std, batch_size, device, num_work
         for severity in range(1, 6):
             start = (severity - 1) * 10000
             end = severity * 10000
-            dataset = CIFAR10CSlice(all_data[start:end], labels[start:end], transform)
+            dataset = CIFAR10C(all_data[start:end], labels[start:end], transform)
             loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
             acc = evaluate(model, loader, device)
             results[corruption][severity] = acc
@@ -188,8 +188,9 @@ def main():
                 'acc': test_acc
             }, f"{save_dir}/last.pt")
     
-    ckpt = torch.load(f"{save_dir}/best.pt")
+    ckpt = torch.load(f"{save_dir}/best.pt", map_location="cpu", weights_only=True)
     model.load_state_dict(ckpt['model'])
+    model.to(device)
     clean_acc = evaluate(model, test_loader, device)
     corruption_result = evaluate_corruption(
         model, c10c_dir, mean, std,
