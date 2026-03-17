@@ -45,10 +45,10 @@ def log_epoch(epoch, total_epochs, train_loss, train_acc, test_acc, lr, elapsed)
 def save_results(clean_acc, corruption_res, save_dir):
     res = dict()
     res["clean_acc"] = clean_acc
-    severity_acc = 0
+    acc_sum = 0
     for per_sev in corruption_res.values():
-        severity_acc += sum(per_sev.values()) / len(per_sev)
-    res["corruption_mean_acc"] = severity_acc / len(corruption_res)
+        acc_sum += sum(per_sev.values()) / len(per_sev)
+    res["corruption_mean_acc"] = acc_sum / len(corruption_res)
     res["severity_acc"] = {
         s: sum(corruption_res[c][s] for c in corruption_res) / len(corruption_res)
         for s in range(1, 6)
