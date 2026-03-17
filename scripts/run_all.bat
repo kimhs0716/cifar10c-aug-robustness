@@ -7,13 +7,17 @@ set AUG_TYPES=none basic autoaugment randaugment augmix
 
 for %%s in (%SEEDS%) do (
     for %%a in (%AUG_TYPES%) do (
-        echo ========================================
-        echo aug_type=%%a  seed=%%s  epochs=%EPOCHS%
-        echo ========================================
-        python scripts/train.py --aug_type %%a --seed %%s --epochs %EPOCHS%
-        if errorlevel 1 (
-            echo ERROR: aug_type=%%a seed=%%s failed.
-            exit /b 1
+        if exist "results\resnet18_%%a_seed%%s\metrics.json" (
+            echo SKIP: resnet18_%%a_seed%%s already done
+        ) else (
+            echo ========================================
+            echo aug_type=%%a  seed=%%s  epochs=%EPOCHS%
+            echo ========================================
+            python scripts/train.py --aug_type %%a --seed %%s --epochs %EPOCHS%
+            if errorlevel 1 (
+                echo ERROR: aug_type=%%a seed=%%s failed.
+                exit /b 1
+            )
         )
     )
 )
